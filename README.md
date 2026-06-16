@@ -4,7 +4,8 @@ This repository is a clean review copy of the EnzymeCAGE / Bio Vector demo and
 evaluation evidence.
 
 It contains teacher-facing reports, supporting R2 context, R3 evaluation audits,
-Leave-EC-Out generalization validation, and reproducibility scripts.
+Leave-EC-Out generalization validation, R3 acceptance/freeze evidence, agent
+integration prerequisites, and reproducibility scripts.
 
 ## Summary
 
@@ -19,8 +20,20 @@ Key result files:
 - R3 metrics audit: [`03_r3_evaluation/R3_METRICS_COMPARISON_AUDIT_20260615.md`](03_r3_evaluation/R3_METRICS_COMPARISON_AUDIT_20260615.md)
 - EC-4 bucket evaluation: [`03_r3_evaluation/R3_EC4_BUCKET_EVAL_20260615.md`](03_r3_evaluation/R3_EC4_BUCKET_EVAL_20260615.md)
 - Stage-wise checkpoint evaluation: [`03_r3_evaluation/R3_STAGEWISE_CHECKPOINT_EVAL_20260615.md`](03_r3_evaluation/R3_STAGEWISE_CHECKPOINT_EVAL_20260615.md)
-- Leave-EC-Out validation: [`05_leave_ec_out_generalization/R3_LEAVE_EC4_OUT_20260616_165840.md`](05_leave_ec_out_generalization/R3_LEAVE_EC4_OUT_20260616_165840.md)
+- Final R3 agent-ready package: [`06_r3_agent_ready_package_20260616/`](06_r3_agent_ready_package_20260616/)
+- Final Leave-EC-Out validation: [`06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_20260616_171432.md`](06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_20260616_171432.md)
+- R3 acceptance note: [`06_r3_agent_ready_package_20260616/R3_ACCEPTANCE_NOTE_20260616_173549.md`](06_r3_agent_ready_package_20260616/R3_ACCEPTANCE_NOTE_20260616_173549.md)
+- R3 model freeze evidence: [`06_r3_agent_ready_package_20260616/R3_MODEL_FREEZE_20260616_174232.md`](06_r3_agent_ready_package_20260616/R3_MODEL_FREEZE_20260616_174232.md)
+- Agent integration prerequisites: [`06_r3_agent_ready_package_20260616/R3_AGENT_INTEGRATION_PREREQUISITES.md`](06_r3_agent_ready_package_20260616/R3_AGENT_INTEGRATION_PREREQUISITES.md)
 - Submission manifest: [`00_manifest/R3_TEACHER_SUBMISSION_MANIFEST_20260615.md`](00_manifest/R3_TEACHER_SUBMISSION_MANIFEST_20260615.md)
+
+## Final R3 Agent-Ready Package
+
+The final 2026-06-16 package is in
+[`06_r3_agent_ready_package_20260616/`](06_r3_agent_ready_package_20260616/).
+It contains exactly the final teacher-facing artifacts for R3 acceptance,
+Leave-EC-Out validation, model freeze evidence, and agent integration
+prerequisites.
 
 ## Latest Generalization Check
 
@@ -58,7 +71,10 @@ The validation report records all teacher reference checks as passing.
   Archived decision input included in the R3 submission package.
 
 05_leave_ec_out_generalization/
-  Leave-EC-Out generalization validation report, JSON output, and script audits.
+  Earlier Leave-EC-Out generalization validation archive.
+
+06_r3_agent_ready_package_20260616/
+  Final R3 acceptance, Leave-EC-Out, model-freeze, and agent-readiness package.
 
 scripts/
   Evaluation scripts archived with the submission.
@@ -83,6 +99,13 @@ scripts/
 05_leave_ec_out_generalization/R3_LEAVE_EC4_OUT_20260616_165840.md
 05_leave_ec_out_generalization/r3_leave_ec4_out.json
 05_leave_ec_out_generalization/eval_leave_ec4_out.py
+06_r3_agent_ready_package_20260616/README.md
+06_r3_agent_ready_package_20260616/eval_leave_ec4_out.py
+06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_20260616_171432.md
+06_r3_agent_ready_package_20260616/r3_leave_ec4_out.json
+06_r3_agent_ready_package_20260616/R3_ACCEPTANCE_NOTE_20260616_173549.md
+06_r3_agent_ready_package_20260616/R3_MODEL_FREEZE_20260616_174232.md
+06_r3_agent_ready_package_20260616/R3_AGENT_INTEGRATION_PREREQUISITES.md
 scripts/eval_ec4_buckets.py
 scripts/postmortem_eval_stage_checkpoints.py
 ```
