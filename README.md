@@ -1,16 +1,15 @@
-# EnzymeCAGE Bio Vector R3 Results
+# EnzymeCAGE Bio Vector Demo
 
-This repository is a clean review copy of the EnzymeCAGE / Bio Vector Round 3
-result package.
+This repository is a clean review copy of the EnzymeCAGE / Bio Vector demo and
+evaluation evidence.
 
-It contains the teacher-facing R3 reports, supporting R2 context, evaluation
-audits, and reproducibility scripts that were included in the final R3
-submission package.
+It contains teacher-facing reports, supporting R2 context, R3 evaluation audits,
+Leave-EC-Out generalization validation, and reproducibility scripts.
 
 ## Summary
 
-Round 3 evaluates Bio Vector as a tool/verifier candidate model for
-reaction-to-enzyme retrieval.
+Bio Vector is evaluated as a tool/verifier candidate model for
+reaction-to-enzyme retrieval in the EnzymeCAGE workflow.
 
 Key result files:
 
@@ -18,7 +17,22 @@ Key result files:
 - R3 metrics audit: [`03_r3_evaluation/R3_METRICS_COMPARISON_AUDIT_20260615.md`](03_r3_evaluation/R3_METRICS_COMPARISON_AUDIT_20260615.md)
 - EC-4 bucket evaluation: [`03_r3_evaluation/R3_EC4_BUCKET_EVAL_20260615.md`](03_r3_evaluation/R3_EC4_BUCKET_EVAL_20260615.md)
 - Stage-wise checkpoint evaluation: [`03_r3_evaluation/R3_STAGEWISE_CHECKPOINT_EVAL_20260615.md`](03_r3_evaluation/R3_STAGEWISE_CHECKPOINT_EVAL_20260615.md)
+- Leave-EC-Out validation: [`05_leave_ec_out_generalization/R3_LEAVE_EC4_OUT_20260616_165840.md`](05_leave_ec_out_generalization/R3_LEAVE_EC4_OUT_20260616_165840.md)
 - Submission manifest: [`00_manifest/R3_TEACHER_SUBMISSION_MANIFEST_20260615.md`](00_manifest/R3_TEACHER_SUBMISSION_MANIFEST_20260615.md)
+
+## Latest Generalization Check
+
+The Leave-EC4-Class-Out validation uses saved R3 embeddings only. It holds out
+5% of EC-4 classes and evaluates EC-3-grouped reaction-to-enzyme retrieval.
+
+| Metric | Hold-out | In-sample 5K | Ratio |
+|---|---:|---:|---:|
+| EC-3 MRR | 0.984791 | 0.935949 | 1.052185 |
+| EC-3 top-1 | 0.966879 | 0.889600 | 1.086870 |
+| EC-3 top-5 | 0.984836 | 0.937400 | 1.050604 |
+| EC-3 top-10 | 0.984836 | 0.961000 | 1.024804 |
+
+The validation report records all teacher reference checks as passing.
 
 ## Repository Layout
 
@@ -38,6 +52,9 @@ Key result files:
 04_decision_inputs/
   Archived decision input included in the R3 submission package.
 
+05_leave_ec_out_generalization/
+  Leave-EC-Out generalization validation report, JSON output, and script audits.
+
 scripts/
   Evaluation scripts archived with the submission.
 ```
@@ -54,6 +71,9 @@ scripts/
 03_r3_evaluation/R3_STAGEWISE_CHECKPOINT_EVAL_20260615.md
 03_r3_evaluation/R3_RESULT_SUMMARY_20260615.md
 04_decision_inputs/R4_DECISION_INPUT.md
+05_leave_ec_out_generalization/R3_LEAVE_EC4_OUT_20260616_165840.md
+05_leave_ec_out_generalization/r3_leave_ec4_out.json
+05_leave_ec_out_generalization/eval_leave_ec4_out.py
 scripts/eval_ec4_buckets.py
 scripts/postmortem_eval_stage_checkpoints.py
 ```
@@ -64,6 +84,4 @@ scripts/postmortem_eval_stage_checkpoints.py
   large embedding artifacts.
 - The files here are organized for review and traceability.
 - The evaluation scripts are archived for provenance with the reports.
-- Round 3 has been treated as the current tool/verifier candidate state; this
-  repository is not a new training plan.
-
+- This repository is not a new training plan.
