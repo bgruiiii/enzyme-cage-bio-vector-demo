@@ -13,6 +13,8 @@ reaction-to-enzyme retrieval in the EnzymeCAGE workflow.
 
 Key result files:
 
+- R2 postmortem report: [`01_r2_postmortem_submission/R2_POSTMORTEM_20260614.md`](01_r2_postmortem_submission/R2_POSTMORTEM_20260614.md)
+- R2 result summary: [`01_r2_postmortem_submission/BIO_VECTOR_R2_RESULT_SUMMARY_2026-06-11.md`](01_r2_postmortem_submission/BIO_VECTOR_R2_RESULT_SUMMARY_2026-06-11.md)
 - Main R3 summary: [`03_r3_evaluation/R3_RESULT_SUMMARY_20260615.md`](03_r3_evaluation/R3_RESULT_SUMMARY_20260615.md)
 - R3 metrics audit: [`03_r3_evaluation/R3_METRICS_COMPARISON_AUDIT_20260615.md`](03_r3_evaluation/R3_METRICS_COMPARISON_AUDIT_20260615.md)
 - EC-4 bucket evaluation: [`03_r3_evaluation/R3_EC4_BUCKET_EVAL_20260615.md`](03_r3_evaluation/R3_EC4_BUCKET_EVAL_20260615.md)
@@ -40,8 +42,11 @@ The validation report records all teacher reference checks as passing.
 00_manifest/
   Final submission manifest.
 
+01_r2_postmortem_submission/
+  Original R2 postmortem teacher submission files.
+
 01_r2_context/
-  R2 postmortem context and EC-4 bucket baseline used for R3 comparison.
+  R2 context and EC-4 bucket baseline used for R3 comparison.
 
 02_r3_training/
   R3 training completion audit.
@@ -63,6 +68,10 @@ scripts/
 
 ```text
 00_manifest/R3_TEACHER_SUBMISSION_MANIFEST_20260615.md
+01_r2_postmortem_submission/R2_POSTMORTEM_20260614.md
+01_r2_postmortem_submission/BIO_VECTOR_R2_RESULT_SUMMARY_2026-06-11.md
+01_r2_postmortem_submission/postmortem_eval_stage_checkpoints.py
+01_r2_postmortem_submission/R3_DECISION_INPUT.md
 01_r2_context/R2_POSTMORTEM_20260615_FINAL.md
 01_r2_context/R2_EC4_BUCKET_BASELINE.md
 02_r3_training/R3_TRAIN_COMPLETION_AUDIT_20260615.md
