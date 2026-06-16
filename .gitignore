@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Local environments
+.env
+.venv/
+venv/
+
+# Large artifacts intentionally excluded from this review repo
+*.pt
+*.pth
+*.npz
+*.npy
+*.tar.gz
+*.zip
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+
