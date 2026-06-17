@@ -3,6 +3,21 @@
 This folder contains the final teacher-facing R3 acceptance and agent-readiness
 package after the 2026-06-17 Leave-EC4-Out v2 leak-fix validation.
 
+## Start Here: 2026-06-17 Final v2 Results
+
+For today's final leak-fix result, please read these files first:
+
+| File | What it answers |
+|---|---|
+| `R3_LEAVE_EC4_OUT_v2_20260617_001330.md` | Final v2 Leave-EC4-Out result and metrics. |
+| `r3_leave_ec4_out_v2.json` | Raw v2 evaluation data. |
+| `R3_LEAVE_EC4_OUT_v2_FINAL_HPC_EVIDENCE_20260617.md` | HPC evidence: paths, compile check, metrics, declarations. |
+| `R3_LEAVE_EC4_OUT_v1_LEAKED_20260616_171432.md` | v1 leaked result, retained only as audit evidence. |
+
+The final result is v2. The v1 report is not the final generalization evidence
+because it contains target leakage from same-EC4-class corpus rows and query
+self rows.
+
 ## Contents
 
 | File | Purpose |
