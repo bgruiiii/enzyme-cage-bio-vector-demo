@@ -102,7 +102,7 @@ print(neighbors)
 | Evidence | Metric | Status |
 |---|---:|---|
 | EC-4 grouped R2E validation | MRR about `0.918` | current R3 tool/verifier candidate |
-| Leave-EC4-Out v2 cross-class EC-family transfer | HO EC-3 MRR `0.618702` | passes under teacher tolerance |
+| Leave-EC4-Out v2 cross-class EC-family transfer | HO EC-3 MRR about `0.619` (exact `0.618702`) | passes under teacher tolerance |
 | Row-level identity retrieval | not a deployable open-domain claim | use only as corpus sanity check |
 | E2M/S2M top-1 | about `0.006` | consume top-k as candidate sets |
 
