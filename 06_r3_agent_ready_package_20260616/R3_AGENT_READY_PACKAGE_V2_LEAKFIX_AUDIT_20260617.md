@@ -15,8 +15,8 @@ The audit distinguishes:
 - v2 Leave-EC4-Out: final cross-class EC-family transfer validation under
   teacher tolerance.
 
-This audit does not claim remote GitHub verification or HPC output-path
-verification. Those require a separate remote/HPC check.
+This audit includes remote GitHub verification after push. It does not claim
+HPC output-path verification; that requires a separate HPC-side command.
 
 ## 2. Package Manifest
 
@@ -155,14 +155,12 @@ No positive declarations were found for:
 | local package files checked | yes |
 | local package old-claim search passed | yes |
 | remote GitHub pre-update checked | yes; `origin/main` was still the old v1 package at commit `1e990dc` |
-| remote GitHub post-update checked | pending after push |
+| remote GitHub post-update checked | yes; `origin/main` contains the v2 package files and revised wording |
 | HPC output path rechecked | no, requires separate HPC-side command |
 
 ## 8. Next Checks
 
-Before declaring remote delivery complete:
+Before declaring HPC-side delivery complete:
 
-1. Push this package update to GitHub and verify the remote package contains the
-   same v2 files and revised wording.
-2. If needed, ask HPC to confirm the authoritative output directory with
+1. If needed, ask HPC to confirm the authoritative output directory with
    `ls -lh`, `python -m py_compile`, and file paths for the v2 report/JSON.
