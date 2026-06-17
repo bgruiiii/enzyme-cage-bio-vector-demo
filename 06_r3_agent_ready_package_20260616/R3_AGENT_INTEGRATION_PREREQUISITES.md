@@ -11,7 +11,7 @@
 |---|---|
 | R3 accepted as current `tool/verifier` candidate | complete |
 | R3 model freeze | complete |
-| Leave-EC4-Out validation | complete, 5/5 thresholds PASS |
+| Leave-EC4-Out validation | v2 leak-fix complete; cross-class EC-family transfer supported under teacher tolerance |
 | Agent-side calibration implementation | not delivered in this package |
 | Real OOD data collection | not delivered in this package |
 
@@ -49,28 +49,36 @@ Operational notes:
 
 ## 3. Unseen EC-4 Fallback Decision
 
-Leave-EC4-Out validation result:
+Leave-EC4-Out v1 audit note:
+
+The original v1 result is retained only as row-level self-alignment evidence.
+It is not used for the fallback decision because same EC-4 corpus rows and the
+query self row were not excluded.
+
+Leave-EC4-Out v2 validation result:
 
 | Metric | Hold-out | In-sample 5K | Ratio | Rating |
 |---|---:|---:|---:|---|
-| EC-3-grouped MRR | 0.984791 | 0.935949 | 1.052185 | PASS |
-| EC-3 top-1 | 0.966879 | 0.889600 | 1.086870 | PASS |
-| EC-3 top-5 | 0.984836 | 0.937400 | 1.050604 | PASS |
-| EC-3 top-10 | 0.984836 | 0.961000 | 1.024804 | PASS |
+| EC-3-grouped MRR | 0.618702 | 0.933737 | 0.662609 | PASS |
+| EC-3 top-1 | 0.588047 | 0.899000 | 0.654113 | reported |
+| EC-3 top-5 | 0.623453 | 0.936200 | 0.665940 | PASS within tolerance |
+| EC-3 top-10 | 0.653534 | 0.959600 | 0.681048 | reported |
 
-Teacher decision rule:
+Teacher v2 acceptance references:
 
 ```text
-if Leave-EC4-Out EC-3-grouped MRR >= 0.80:
-    allow natural fallback to same EC-3 neighbors
-else:
-    require EC-label lookup; abstain for unseen EC-4 classes
+HO EC-3 MRR >= 0.50, tolerance +/-0.05
+HO EC-3 top-5 >= 0.65, tolerance +/-0.05
+HO/IS MRR ratio >= 0.65, tolerance +/-0.05
+HO/IS MRR ratio must be < 1.0 directionally
 ```
 
 Applied to R3:
 
 ```text
-0.984791 >= 0.80 -> natural EC-3-family fallback is supported
+HO EC-3 MRR = 0.618702 -> nominal PASS
+HO EC-3 top-5 = 0.623453 -> tolerance PASS
+HO/IS MRR ratio = 0.662609 -> nominal PASS and direction OK (< 1)
 ```
 
 Agent v1 decision tree:
@@ -89,7 +97,8 @@ accept top-1 candidate
   |
   v
 if EC-4 is not present in training classes:
-    rely on demonstrated EC-3-family fallback
+    allow natural fallback to same EC-3-family neighbors under the same
+    score >= 0.9 rule; record that this is supported under teacher tolerance
 else:
     use standard in-corpus retrieval behavior
 
@@ -99,7 +108,9 @@ top-1 score < 0.9 ?
 abstain
 ```
 
-中文说明：Leave-EC4-Out 已经通过，agent v1 不需要把 unseen EC-4 直接退化成 lookup-table abstain；只要 top-1 score 达到 0.9，就允许模型自然回落到同 EC-3 family 邻居。
+中文说明：v2 修掉 leakage 后，结果按老师 tolerance 支持 cross-class EC-family
+transfer。agent v1 不需要把 unseen EC-4 直接退化成 lookup-table abstain；但所有
+采用仍必须受 `score >= 0.9` 约束，低于阈值继续 abstain。
 
 ## 4. OOD Detection Staging
 
@@ -137,6 +148,8 @@ Use frozen R3 artifacts.
 Use top-1 result only when score >= 0.9.
 Abstain when score < 0.9.
 Allow unseen EC-4 natural fallback to EC-3-family neighbors, because
-Leave-EC4-Out passed with EC-3-grouped MRR = 0.984791.
+Leave-EC4-Out v2 supports cross-class EC-family transfer under teacher
+tolerance (HO EC-3 MRR = 0.618702, HO top-5 = 0.623453, HO/IS MRR ratio =
+0.662609, all HO/IS ratios < 1).
 Do not add OOD detection until agent v2 has real non-enzyme reaction data.
 ```

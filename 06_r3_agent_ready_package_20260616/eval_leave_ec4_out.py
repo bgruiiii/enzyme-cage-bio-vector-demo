@@ -39,11 +39,9 @@ IN_SAMPLE_SUBSET_SIZE = 5000
 
 THRESHOLDS = [
     # (display_label,  source,    lookup_key,  threshold)
-    ("EC-3-grouped MRR", "holdout", "MRR",        0.80),
-    ("EC-3 top-1",       "holdout", "top-1",      0.70),
-    ("EC-3 top-5",       "holdout", "top-5",      0.85),
-    ("EC-3 top-10",      "holdout", "top-10",     0.92),
-    ("HO/IS ratio MRR",  "ratio",   "ratio_MRR",  0.85),
+    ("EC-3-grouped MRR", "holdout", "MRR",        0.50),
+    ("EC-3 top-5",       "holdout", "top-5",      0.65),
+    ("HO/IS ratio MRR",  "ratio",   "ratio_MRR",  0.65),
 ]
 TOLERANCE = 0.05
 
@@ -129,7 +127,10 @@ def to_jsonable(obj):
 # ──────────────────────────────────────────────────────────────────────
 def compute_ec3_grouped_metrics(query_emb, corpus_emb, ec3_labels_query,
                                  ec3_groups_arr, chunk_size, ks=(1, 5, 10),
-                                 ec4_labels_query=None):
+                                 ec4_labels_query=None,
+                                 query_row_indices=None,
+                                 exclude_corpus_mask=None,
+                                 exclude_self=True):
     """Compute EC-3-grouped R->E retrieval metrics over a set of queries.
 
     Args:
@@ -142,6 +143,12 @@ def compute_ec3_grouped_metrics(query_emb, corpus_emb, ec3_labels_query,
         ks: tuple of k values for top-k.
         ec4_labels_query: optional list of EC-4 strings for per-EC4-class
             summary (hold-out only).  Length must match n_query.
+        query_row_indices: optional np.ndarray of global corpus row indices
+            for each query (used for self-exclusion).
+        exclude_corpus_mask: optional bool array (N,). True = corpus row
+            is banned (score set to -inf).
+        exclude_self: if True and query_row_indices given, ban each query's
+            own corpus row.
 
     Returns:
         dict with keys:
@@ -181,20 +188,39 @@ def compute_ec3_grouped_metrics(query_emb, corpus_emb, ec3_labels_query,
             if gi is None or len(gi) == 0:
                 continue
 
-            s = sim_chunk[local_i]  # (N,) cosine scores
+            s = sim_chunk[local_i].copy()  # (N,) cosine scores — copy for masking
 
-            # Grouped MRR
-            best_pos_score = float(np.max(s[gi]))
+            # ── v2 leak-fix: apply corpus mask and self-exclusion ──
+            if exclude_corpus_mask is not None:
+                s[exclude_corpus_mask] = -np.inf
+
+            self_corpus_idx = None
+            if exclude_self and query_row_indices is not None:
+                self_corpus_idx = query_row_indices[global_i]
+                s[self_corpus_idx] = -np.inf
+
+            # Build gi_eff: filter banned corpus rows from group
+            gi_eff = gi
+            if exclude_corpus_mask is not None:
+                gi_eff = gi_eff[~exclude_corpus_mask[gi_eff]]
+            if exclude_self and self_corpus_idx is not None:
+                gi_eff = gi_eff[gi_eff != self_corpus_idx]
+
+            if len(gi_eff) == 0:
+                continue  # skip query if no valid group members remain
+
+            # Grouped MRR (using gi_eff)
+            best_pos_score = float(np.max(s[gi_eff]))
             rank = int(np.sum(s > best_pos_score)) + 1
             rr = 1.0 / rank
             ranks[global_i] = rank
             accum["rr_sum"] += rr
 
-            # Top-k
+            # Top-k (using gi_eff)
             k_eff = min(max_k, len(s))
             topk_unsorted = np.argpartition(-s, k_eff - 1)[:k_eff]
             topk_idx = topk_unsorted[np.argsort(-s[topk_unsorted])]
-            gset = set(gi.tolist())
+            gset = set(gi_eff.tolist())
             t1_hit = int(bool(set(topk_idx[:1].tolist()) & gset))
             t5_hit = int(bool(set(topk_idx[:5].tolist()) & gset))
             t10_hit = int(bool(set(topk_idx[:10].tolist()) & gset))
@@ -388,6 +414,15 @@ def main():
     subset_pick.sort()
     log(f"  in-sample subset size: {actual_subset_size}")
 
+    # ── Hold-out corpus mask (v2 leak-fix) ──
+    holdout_corpus_mask = np.zeros(N, dtype=bool)
+    for i in range(N):
+        if ec4_labels[i] is not None and ec4_labels[i] in holdout_class_set:
+            holdout_corpus_mask[i] = True
+    n_banned_corpus_rows = int(holdout_corpus_mask.sum())
+    log(f"  hold-out corpus mask: banned {n_banned_corpus_rows} corpus rows "
+        f"(belonging to held-out EC-4 classes)")
+
     # ── Hold-out EC-3 grouped retrieval ──
     log("")
     log("=" * 60)
@@ -398,7 +433,10 @@ def main():
     ho_reaction = reaction_emb[holdout_row_indices]
     ho_metrics = compute_ec3_grouped_metrics(
         ho_reaction, enzyme_emb, ho_ec3_labels, ec3_groups_arr,
-        args.chunk_size, ec4_labels_query=ho_ec4_labels)
+        args.chunk_size, ec4_labels_query=ho_ec4_labels,
+        query_row_indices=holdout_row_indices,
+        exclude_corpus_mask=holdout_corpus_mask,
+        exclude_self=True)
     for k, v in ho_metrics.items():
         if k not in ("rank_list", "per_ec4_class"):
             log(f"  hold-out {k}: {v}")
@@ -412,7 +450,10 @@ def main():
     is_reaction = reaction_emb[subset_pick]
     is_metrics = compute_ec3_grouped_metrics(
         is_reaction, enzyme_emb, is_ec3_labels, ec3_groups_arr,
-        args.chunk_size)
+        args.chunk_size,
+        query_row_indices=subset_pick,
+        exclude_corpus_mask=None,
+        exclude_self=True)
     for k, v in is_metrics.items():
         if k not in ("rank_list", "per_ec4_class"):
             log(f"  in-sample {k}: {v}")
@@ -429,17 +470,29 @@ def main():
         log(f"  ratio_{metric_key}: {ratio:.6f}  "
             f"(hold-out={ho_val:.6f}, in-sample={is_val:.6f})")
 
-    # ── Threshold ratings ──
+    # ── Threshold ratings (v2: ratio direction check) ──
     log("")
-    log("Evaluating against teacher thresholds...")
+    log("Evaluating against teacher thresholds (v2 leak-fix criteria)...")
     threshold_ratings = {}
     for label, source, lookup_key, threshold in THRESHOLDS:
         if source == "ratio":
             value = ratios.get(lookup_key, 0.0)
+            # v2: ratio >= 1 is suspicious — hold-out should be WORSE than in-sample
+            if value >= 1.0:
+                rating = "SUSPICIOUS/FAIL"
+                log(f"  {label}: {value:.6f} >= 1.0 -> {rating} "
+                    f"(direction violation: HO should be < IS)")
+            else:
+                passed = value >= (threshold - TOLERANCE)
+                rating = "PASS" if passed else "FAIL"
+                log(f"  {label}: {value:.6f} vs {threshold:.2f} "
+                    f"(eff. {threshold - TOLERANCE:.2f}) -> {rating}")
         else:
             value = ho_metrics.get(lookup_key, 0.0)
-        passed = value >= (threshold - TOLERANCE)
-        rating = "PASS" if passed else "FAIL"
+            passed = value >= (threshold - TOLERANCE)
+            rating = "PASS" if passed else "FAIL"
+            log(f"  {label}: {value:.6f} vs {threshold:.2f} "
+                f"(eff. {threshold - TOLERANCE:.2f}) -> {rating}")
         threshold_ratings[label] = {
             "value": value,
             "threshold": threshold,
@@ -447,19 +500,70 @@ def main():
             "effective_threshold": threshold - TOLERANCE,
             "rating": rating,
         }
-        log(f"  {label}: {value:.6f} vs {threshold:.2f} "
-            f"(eff. {threshold - TOLERANCE:.2f}) -> {rating}")
+
+    expected_ranges = {
+        "HO_EC3_MRR": {
+            "value": ho_metrics["MRR"],
+            "expected_lo": 0.45,
+            "expected_hi": 0.75,
+            "note": (
+                f"{ho_metrics['MRR']:.4f} is "
+                f"{'within' if 0.45 <= ho_metrics['MRR'] <= 0.75 else 'outside'} "
+                "expected range [0.45, 0.75]"
+            ),
+        },
+        "IS_EC3_MRR": {
+            "value": is_metrics["MRR"],
+            "expected_lo": 0.55,
+            "expected_hi": 0.85,
+            "note": (
+                f"{is_metrics['MRR']:.4f} is "
+                f"{'within' if 0.55 <= is_metrics['MRR'] <= 0.85 else 'above' if is_metrics['MRR'] > 0.85 else 'below'} "
+                "expected range [0.55, 0.85]"
+            ),
+        },
+        "HO_IS_MRR_ratio": {
+            "value": ratios["ratio_MRR"],
+            "expected_lo": 0.70,
+            "expected_hi": 0.95,
+            "note": (
+                f"{ratios['ratio_MRR']:.4f} is "
+                f"{'within' if 0.70 <= ratios['ratio_MRR'] <= 0.95 else 'above' if ratios['ratio_MRR'] > 0.95 else 'below'} "
+                "expected range [0.70, 0.95]"
+            ),
+        },
+    }
 
     # ── Qualitative conclusion ──
     n_pass = sum(1 for v in threshold_ratings.values() if v["rating"] == "PASS")
     n_total = len(threshold_ratings)
     all_pass = n_pass == n_total
+    has_suspicious = any("SUSPICIOUS" in v["rating"] for v in threshold_ratings.values())
+    tolerance_only = [
+        k for k, v in threshold_ratings.items()
+        if v["rating"] == "PASS" and v["value"] < v["threshold"]
+    ]
+    expected_range_notes = [
+        k for k, v in expected_ranges.items()
+        if not (v["expected_lo"] <= v["value"] <= v["expected_hi"])
+    ]
     if all_pass:
         conclusion = (
-            "All hold-out metrics meet or exceed teacher thresholds "
-            "(with +/-0.05 tolerance). The hold-out / in-sample ratio "
-            "supports generalization. R3 embeddings demonstrate robust "
-            "cross-EC-4-class transfer.")
+            "The v2 result supports cross-class EC-family transfer under the "
+            "teacher acceptance references. The hold-out / in-sample ratio is "
+            "< 1 (expected direction), so the v1 leakage direction is fixed. "
+            "Some items require careful wording: "
+            f"tolerance-only pass metrics = {tolerance_only or 'none'}; "
+            f"outside teacher expected ranges = {expected_range_notes or 'none'}. "
+            "Use this as tolerance-supported transfer evidence, not as an "
+            "overstated robustness claim.")
+    elif has_suspicious:
+        failed = [k for k, v in threshold_ratings.items() if v["rating"] != "PASS"]
+        conclusion = (
+            f"{n_pass}/{n_total} thresholds passed. "
+            f"Flagged metrics: {', '.join(failed)}. "
+            f"HO/IS ratio >= 1 detected — possible corpus leakage. "
+            f"v2 leak-fix should have prevented this; investigate further.")
     else:
         failed = [k for k, v in threshold_ratings.items() if v["rating"] == "FAIL"]
         conclusion = (
@@ -474,9 +578,9 @@ def main():
     # ── Write JSON ──
     log("")
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    json_path = os.path.join(args.output_dir, "r3_leave_ec4_out.json")
+    json_path = os.path.join(args.output_dir, "r3_leave_ec4_out_v2.json")
     json_report = {
-        "task": "R3 Leave-EC4-Class-Out Validation",
+        "task": "R3 Leave-EC4-Class-Out v2 Leak-Fix Validation",
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "config": {
             "seed": args.seed,
@@ -501,11 +605,16 @@ def main():
             "holdout_class_list": holdout_classes,
             "holdout_row_count": n_holdout_rows,
             "holdout_row_percentage": holdout_pct,
+            "holdout_evaluated_queries": ho_metrics["n_queries"],
+            "holdout_skipped_queries": len(ho_metrics["rank_list"]) - ho_metrics["n_queries"],
             "holdout_row_indices": holdout_row_indices.tolist(),
+            "holdout_corpus_mask_ban_count": n_banned_corpus_rows,
         },
         "in_sample": {
             "n_in_sample_total": n_in_sample,
             "subset_size": actual_subset_size,
+            "in_sample_evaluated_queries": is_metrics["n_queries"],
+            "in_sample_skipped_queries": len(is_metrics["rank_list"]) - is_metrics["n_queries"],
             "subset_row_indices": subset_pick.tolist(),
         },
         "metrics": {
@@ -513,6 +622,7 @@ def main():
             "in_sample": to_jsonable(is_metrics),
         },
         "ratios": to_jsonable(ratios),
+        "expected_ranges": to_jsonable(expected_ranges),
         "threshold_ratings": to_jsonable(threshold_ratings),
         "conclusion": conclusion,
         "environment": {
@@ -523,11 +633,13 @@ def main():
         },
         "declarations": {
             "train_py_modified": False,
-            "eval_script_created": True,
+            "eval_script_patched": True,
+            "v2_leak_fix": True,
             "sbatch_executed": False,
             "gpu_dcu_used": False,
             "retraining_executed": False,
             "full_evaluation_executed": True,
+            "r4_opened": False,
             "new_training_objective_introduced": False,
         },
     }
@@ -537,23 +649,27 @@ def main():
 
     # ── Write Markdown ──
     md_path = os.path.join(args.output_dir,
-                            f"R3_LEAVE_EC4_OUT_{timestamp}.md")
+                            f"R3_LEAVE_EC4_OUT_v2_{timestamp}.md")
     lines = []
     w = lines.append
 
-    w("# R3 Leave-EC4-Class-Out Validation Report")
+    w("# R3 Leave-EC4-Class-Out v2 Leak-Fix Validation Report")
     w("")
     w(f"**Timestamp**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     w(f"**Hostname**: {socket.gethostname()}")
+    w(f"**Version**: v2 leak-fix")
     w("")
 
     w("## 1. Purpose")
     w("")
-    w("This report documents the **R3 Leave-EC4-Class-Out validation** — a "
+    w("This report documents the **R3 Leave-EC4-Class-Out v2 leak-fix validation** — a "
       "zero-GPU evaluation using only saved R3 embeddings. A fraction of EC-4 "
       "classes are held out, and EC-3-grouped R->E retrieval performance is "
       "measured on the held-out rows and compared against an in-sample 5 000-row "
-      "subset. **No model loading, no training, no torch.**")
+      "subset. **v2 fixes corpus-side leakage**: held-out EC-4 class enzyme rows "
+      "are banned from the corpus during hold-out retrieval, and self-match is "
+      "excluded for both hold-out and in-sample calls. "
+      "**No model loading, no training, no torch.**")
     w("")
 
     w("## 2. Configuration")
@@ -588,9 +704,21 @@ def main():
     w(f"| Hold-out row percentage | **{holdout_pct:.2f}%** |")
     w(f"| In-sample rows | {n_in_sample} |")
     w(f"| In-sample subset size | {actual_subset_size} |")
+    w(f"| Hold-out corpus mask banned rows | **{n_banned_corpus_rows}** |")
+    w(f"| Evaluated hold-out queries | **{ho_metrics['n_queries']}** |")
+    w(f"| Skipped hold-out queries (gi_eff empty) | **{len(ho_metrics['rank_list']) - ho_metrics['n_queries']}** |")
     w("")
 
-    w("## 5. Hold-Out vs In-Sample Comparison")
+    w("## 5. v2 Leak-Fix Summary")
+    w("")
+    w("- `s = sim_chunk[local_i].copy()` — prevents in-place mutation of similarity matrix")
+    w("- `exclude_corpus_mask` — bans all enzyme rows belonging to held-out EC-4 classes from corpus during hold-out retrieval")
+    w("- `exclude_self=True` — bans each query's own corpus row (both hold-out and in-sample)")
+    w("- `gi_eff` — filtered group indices; MRR and top-k use only non-banned corpus members")
+    w("- Ratio direction check: HO/IS MRR ratio >= 1.0 triggers SUSPICIOUS/FAIL (expected: ratio < 1)")
+    w("")
+
+    w("## 6. Hold-Out vs In-Sample Comparison")
     w("")
     w("| Metric | Hold-Out | In-Sample (5K) | Ratio (HO/IS) |")
     w("|--------|----------|-----------------|---------------|")
@@ -601,9 +729,10 @@ def main():
         w(f"| EC-3 {metric_key} | {ho_val:.6f} | {is_val:.6f} | {ratio:.6f} |")
     w("")
 
-    w("## 6. Threshold Evaluation")
+    w("## 7. Threshold Evaluation")
     w("")
-    w("Teacher thresholds (with **+/-0.05 tolerance** caveat):")
+    w("Teacher thresholds (with **+/-0.05 tolerance** caveat). "
+      "Ratio has additional direction check: ratio >= 1.0 is SUSPICIOUS/FAIL.")
     w("")
     w("| Metric | Value | Threshold | Effective | Rating |")
     w("|--------|-------|-----------|-----------|--------|")
@@ -614,16 +743,31 @@ def main():
     w(f"**Result: {n_pass}/{n_total} thresholds passed.**")
     w("")
 
-    w("## 7. Qualitative Conclusion")
+    w("## 8. Expected-Range Comparison")
+    w("")
+    w("| Metric | Value | Teacher Expected Range | Status |")
+    w("|--------|-------|------------------------|--------|")
+    for label, info in expected_ranges.items():
+        lo = info["expected_lo"]
+        hi = info["expected_hi"]
+        in_range = lo <= info["value"] <= hi
+        status = "within range" if in_range else "outside range"
+        extra = ""
+        if label == "HO_IS_MRR_ratio":
+            extra = "; direction < 1 ok" if info["value"] < 1.0 else "; direction suspicious"
+        w(f"| {label} | {info['value']:.6f} | {lo:.2f}-{hi:.2f} | {status}{extra} |")
+    w("")
+
+    w("## 9. Qualitative Conclusion")
     w("")
     w(conclusion)
     w("")
-    w("> **Teacher caveat**: thresholds allow about +/-0.05 tolerance. "
-      "A metric slightly below the nominal threshold (within tolerance) "
-      "is still considered acceptable.")
+    w("> **v2 caveat**: thresholds use updated reference values "
+      "(MRR >= 0.50, top-5 >= 0.65, ratio >= 0.65 with tolerance +/-0.05). "
+      "Ratio direction is independently checked: ratio >= 1 is always suspicious.")
     w("")
 
-    w("## 8. Output Files")
+    w("## 10. Output Files")
     w("")
     w("| File | Path |")
     w("|------|------|")
@@ -632,14 +776,15 @@ def main():
     w(f"| Eval script | `{os.path.abspath(__file__)}` |")
     w("")
 
-    w("## 9. Declarations")
+    w("## 11. Declarations")
     w("")
     w("- train.py modified: **no**")
-    w("- eval script created: **yes**")
+    w("- eval script patched (v2 leak-fix): **yes**")
     w("- sbatch executed: **no**")
     w("- GPU/DCU used: **no**")
     w("- retraining executed: **no**")
     w("- full evaluation executed: **yes**")
+    w("- R4 opened: **no**")
     w("- new training objective introduced: **no**")
     w("")
     w("---")
@@ -654,7 +799,7 @@ def main():
 
     log("")
     log("=" * 60)
-    log("R3 Leave-EC4-Class-Out Validation complete.")
+    log("R3 Leave-EC4-Class-Out v2 Leak-Fix Validation complete.")
     log("=" * 60)
 
 

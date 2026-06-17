@@ -21,10 +21,11 @@ Key result files:
 - EC-4 bucket evaluation: [`03_r3_evaluation/R3_EC4_BUCKET_EVAL_20260615.md`](03_r3_evaluation/R3_EC4_BUCKET_EVAL_20260615.md)
 - Stage-wise checkpoint evaluation: [`03_r3_evaluation/R3_STAGEWISE_CHECKPOINT_EVAL_20260615.md`](03_r3_evaluation/R3_STAGEWISE_CHECKPOINT_EVAL_20260615.md)
 - Final R3 agent-ready package: [`06_r3_agent_ready_package_20260616/`](06_r3_agent_ready_package_20260616/)
-- Final Leave-EC-Out validation: [`06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_20260616_171432.md`](06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_20260616_171432.md)
+- Final Leave-EC-Out validation: [`06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_v2_20260617_001330.md`](06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_v2_20260617_001330.md)
 - R3 acceptance note: [`06_r3_agent_ready_package_20260616/R3_ACCEPTANCE_NOTE_20260616_173549.md`](06_r3_agent_ready_package_20260616/R3_ACCEPTANCE_NOTE_20260616_173549.md)
 - R3 model freeze evidence: [`06_r3_agent_ready_package_20260616/R3_MODEL_FREEZE_20260616_174232.md`](06_r3_agent_ready_package_20260616/R3_MODEL_FREEZE_20260616_174232.md)
 - Agent integration prerequisites: [`06_r3_agent_ready_package_20260616/R3_AGENT_INTEGRATION_PREREQUISITES.md`](06_r3_agent_ready_package_20260616/R3_AGENT_INTEGRATION_PREREQUISITES.md)
+- Final package audit: [`06_r3_agent_ready_package_20260616/R3_AGENT_READY_PACKAGE_V2_LEAKFIX_AUDIT_20260617.md`](06_r3_agent_ready_package_20260616/R3_AGENT_READY_PACKAGE_V2_LEAKFIX_AUDIT_20260617.md)
 - Submission manifest: [`00_manifest/R3_TEACHER_SUBMISSION_MANIFEST_20260615.md`](00_manifest/R3_TEACHER_SUBMISSION_MANIFEST_20260615.md)
 
 ## Final R3 Agent-Ready Package
@@ -32,22 +33,27 @@ Key result files:
 The final 2026-06-16 package is in
 [`06_r3_agent_ready_package_20260616/`](06_r3_agent_ready_package_20260616/).
 It contains exactly the final teacher-facing artifacts for R3 acceptance,
-Leave-EC-Out validation, model freeze evidence, and agent integration
-prerequisites.
+Leave-EC-Out v2 validation, model freeze evidence, and agent integration
+prerequisites. The original v1 Leave-EC4-Out report is retained only as leaked
+row-level self-alignment audit evidence.
 
 ## Latest Generalization Check
 
-The Leave-EC4-Class-Out validation uses saved R3 embeddings only. It holds out
-5% of EC-4 classes and evaluates EC-3-grouped reaction-to-enzyme retrieval.
+The final Leave-EC4-Class-Out v2 validation uses saved R3 embeddings only. It
+holds out 5% of EC-4 classes and evaluates EC-3-grouped reaction-to-enzyme
+retrieval after excluding held-out EC-4 enzyme corpus rows and query self rows.
 
 | Metric | Hold-out | In-sample 5K | Ratio |
 |---|---:|---:|---:|
-| EC-3 MRR | 0.984791 | 0.935949 | 1.052185 |
-| EC-3 top-1 | 0.966879 | 0.889600 | 1.086870 |
-| EC-3 top-5 | 0.984836 | 0.937400 | 1.050604 |
-| EC-3 top-10 | 0.984836 | 0.961000 | 1.024804 |
+| EC-3 MRR | 0.618702 | 0.933737 | 0.662609 |
+| EC-3 top-1 | 0.588047 | 0.899000 | 0.654113 |
+| EC-3 top-5 | 0.623453 | 0.936200 | 0.665940 |
+| EC-3 top-10 | 0.653534 | 0.959600 | 0.681048 |
 
-The validation report records all teacher reference checks as passing.
+The v2 report records HO EC-3 MRR as a nominal pass, HO EC-3 top-5 as a
+tolerance pass, and HO/IS MRR ratio as a nominal pass with the expected
+direction (`< 1.0`). This supports cross-class EC-family transfer under teacher
+tolerance.
 
 ## Repository Layout
 
@@ -102,10 +108,14 @@ scripts/
 06_r3_agent_ready_package_20260616/README.md
 06_r3_agent_ready_package_20260616/eval_leave_ec4_out.py
 06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_20260616_171432.md
+06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_v1_LEAKED_20260616_171432.md
+06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_v2_20260617_001330.md
 06_r3_agent_ready_package_20260616/r3_leave_ec4_out.json
+06_r3_agent_ready_package_20260616/r3_leave_ec4_out_v2.json
 06_r3_agent_ready_package_20260616/R3_ACCEPTANCE_NOTE_20260616_173549.md
 06_r3_agent_ready_package_20260616/R3_MODEL_FREEZE_20260616_174232.md
 06_r3_agent_ready_package_20260616/R3_AGENT_INTEGRATION_PREREQUISITES.md
+06_r3_agent_ready_package_20260616/R3_AGENT_READY_PACKAGE_V2_LEAKFIX_AUDIT_20260617.md
 scripts/eval_ec4_buckets.py
 scripts/postmortem_eval_stage_checkpoints.py
 ```
@@ -117,3 +127,5 @@ scripts/postmortem_eval_stage_checkpoints.py
 - The files here are organized for review and traceability.
 - The evaluation scripts are archived for provenance with the reports.
 - This repository is not a new training plan.
+- The legacy v1 Leave-EC4-Out path may remain for traceability, but the final
+  cross-class transfer evidence is the v2 report.
