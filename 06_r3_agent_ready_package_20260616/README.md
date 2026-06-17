@@ -17,6 +17,7 @@ package after the 2026-06-17 Leave-EC4-Out v2 leak-fix validation.
 | `R3_MODEL_FREEZE_20260616_174232.md` | HPC model-freeze evidence for `frozen/model_v3.pt`. |
 | `R3_AGENT_INTEGRATION_PREREQUISITES.md` | Agent integration prerequisites and policy constraints. |
 | `R3_AGENT_READY_PACKAGE_V2_LEAKFIX_AUDIT_20260617.md` | Final local package audit and manifest update after v2 leak-fix. |
+| `R3_LEAVE_EC4_OUT_v2_FINAL_HPC_EVIDENCE_20260617.md` | Final HPC output-path evidence for v2 artifacts and v1 leaked copy. |
 
 ## Final Status
 

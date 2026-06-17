@@ -32,6 +32,7 @@ HPC output-path verification; that requires a separate HPC-side command.
 | `R3_ACCEPTANCE_NOTE_20260616_173549.md` | 4123 bytes | R3 acceptance note updated for v2 |
 | `R3_MODEL_FREEZE_20260616_174232.md` | 4083 bytes | Freeze evidence; provenance wording updated for v2 |
 | `R3_AGENT_INTEGRATION_PREREQUISITES.md` | 4922 bytes | Agent policy prerequisites updated for v2 |
+| `R3_LEAVE_EC4_OUT_v2_FINAL_HPC_EVIDENCE_20260617.md` | 8335 bytes | Final HPC output-path evidence for v2 and v1 leaked copy |
 
 All listed files are present and non-empty in the local package copy.
 
@@ -156,11 +157,15 @@ No positive declarations were found for:
 | local package old-claim search passed | yes |
 | remote GitHub pre-update checked | yes; `origin/main` was still the old v1 package at commit `1e990dc` |
 | remote GitHub post-update checked | yes; `origin/main` contains the v2 package files and revised wording |
-| HPC output path rechecked | no, requires separate HPC-side command |
+| HPC output path rechecked | yes; final evidence confirms v2 artifacts, v1 leaked copy, compile result, and no-train declarations |
 
 ## 8. Next Checks
 
-Before declaring HPC-side delivery complete:
+HPC-side delivery is complete for the teacher checklist items covered by this
+package. The final evidence file confirms:
 
-1. If needed, ask HPC to confirm the authoritative output directory with
-   `ls -lh`, `python -m py_compile`, and file paths for the v2 report/JSON.
+- v2 markdown and JSON exist on the HPC output path;
+- v1 leaked copy exists on the HPC output path and has the required header;
+- `eval_leave_ec4_out.py` compiles on HPC;
+- no `train.py` modification, Slurm submission, GPU/DCU use, retraining, or R4
+  opening occurred during the evidence check.

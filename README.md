@@ -26,6 +26,7 @@ Key result files:
 - R3 model freeze evidence: [`06_r3_agent_ready_package_20260616/R3_MODEL_FREEZE_20260616_174232.md`](06_r3_agent_ready_package_20260616/R3_MODEL_FREEZE_20260616_174232.md)
 - Agent integration prerequisites: [`06_r3_agent_ready_package_20260616/R3_AGENT_INTEGRATION_PREREQUISITES.md`](06_r3_agent_ready_package_20260616/R3_AGENT_INTEGRATION_PREREQUISITES.md)
 - Final package audit: [`06_r3_agent_ready_package_20260616/R3_AGENT_READY_PACKAGE_V2_LEAKFIX_AUDIT_20260617.md`](06_r3_agent_ready_package_20260616/R3_AGENT_READY_PACKAGE_V2_LEAKFIX_AUDIT_20260617.md)
+- Final HPC evidence: [`06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_v2_FINAL_HPC_EVIDENCE_20260617.md`](06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_v2_FINAL_HPC_EVIDENCE_20260617.md)
 - Submission manifest: [`00_manifest/R3_TEACHER_SUBMISSION_MANIFEST_20260615.md`](00_manifest/R3_TEACHER_SUBMISSION_MANIFEST_20260615.md)
 
 ## Final R3 Agent-Ready Package
@@ -116,6 +117,7 @@ scripts/
 06_r3_agent_ready_package_20260616/R3_MODEL_FREEZE_20260616_174232.md
 06_r3_agent_ready_package_20260616/R3_AGENT_INTEGRATION_PREREQUISITES.md
 06_r3_agent_ready_package_20260616/R3_AGENT_READY_PACKAGE_V2_LEAKFIX_AUDIT_20260617.md
+06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_v2_FINAL_HPC_EVIDENCE_20260617.md
 scripts/eval_ec4_buckets.py
 scripts/postmortem_eval_stage_checkpoints.py
 ```
