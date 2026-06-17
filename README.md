@@ -27,6 +27,7 @@ Key result files:
 - Agent integration prerequisites: [`06_r3_agent_ready_package_20260616/R3_AGENT_INTEGRATION_PREREQUISITES.md`](06_r3_agent_ready_package_20260616/R3_AGENT_INTEGRATION_PREREQUISITES.md)
 - Final package audit: [`06_r3_agent_ready_package_20260616/R3_AGENT_READY_PACKAGE_V2_LEAKFIX_AUDIT_20260617.md`](06_r3_agent_ready_package_20260616/R3_AGENT_READY_PACKAGE_V2_LEAKFIX_AUDIT_20260617.md)
 - Final HPC evidence: [`06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_v2_FINAL_HPC_EVIDENCE_20260617.md`](06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_v2_FINAL_HPC_EVIDENCE_20260617.md)
+- R3 retrieval toolkit: [`07_r3_retrieval_toolkit_2026-06-17/`](07_r3_retrieval_toolkit_2026-06-17/)
 - Submission manifest: [`00_manifest/R3_TEACHER_SUBMISSION_MANIFEST_20260615.md`](00_manifest/R3_TEACHER_SUBMISSION_MANIFEST_20260615.md)
 
 ## Final R3 Agent-Ready Package
@@ -82,6 +83,9 @@ tolerance.
 
 06_r3_agent_ready_package_20260616/
   Final R3 acceptance, Leave-EC-Out, model-freeze, and agent-readiness package.
+
+07_r3_retrieval_toolkit_2026-06-17/
+  Pure numpy local retrieval toolkit for frozen R3 embeddings.
 
 scripts/
   Evaluation scripts archived with the submission.

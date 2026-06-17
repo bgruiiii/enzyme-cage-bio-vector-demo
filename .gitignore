@@ -11,6 +11,7 @@ venv/
 *.pt
 *.pth
 *.npz
+!07_r3_retrieval_toolkit_2026-06-17/data/r3_reaction_encoder.npz
 *.npy
 *.tar.gz
 *.zip
@@ -18,4 +19,3 @@ venv/
 # OS/editor noise
 .DS_Store
 Thumbs.db
-
