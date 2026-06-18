@@ -350,3 +350,283 @@ branch: main
 remote: origin git@github.com:bgruiiii/enzyme-cage-bio-vector-demo.git
 commit message: R3 retrieval toolkit v1: numpy retrieval + reaction encoder weights for open-domain query
 ```
+
+## BioDeg v0.2 Task 1 Open-Domain DRFP Sanity
+
+HPC result reviewed locally:
+
+```text
+/home/a/EnzymeCAGE/custom/docs/bio_vector/V0_2_OPEN_DOMAIN_SANITY_HPC_RESULT_20260618.md
+```
+
+HPC paths:
+
+```text
+toolkit_dir: /public/home/acfbwjsi7s/07_r3_retrieval_toolkit_2026-06-17
+R3_ARTIFACT_DIR: /public/home/acfbwjsi7s/bio_vector_full_run_2026-06-04/outputs/r3_ec4_balanced_stage3skip_2026-06-15
+metadata_v3.json: /public/home/acfbwjsi7s/bio_vector_full_run_2026-06-04/outputs/r3_ec4_balanced_stage3skip_2026-06-15/metadata_v3.json
+embeddings_v3.npz: /public/home/acfbwjsi7s/bio_vector_full_run_2026-06-04/outputs/r3_ec4_balanced_stage3skip_2026-06-15/embeddings_v3.npz
+reaction_features.npz: /public/home/acfbwjsi7s/bio_vector_full_run_2026-06-04/data/reaction_enzyme_microbe_training_clean_2026-06-01_LOCAL/features/reaction/reaction_features.npz
+```
+
+Environment:
+
+```text
+Python: 3.9.23
+pytest: 8.4.2
+drfp: 0.3.6
+```
+
+Command:
+
+```text
+R3_ARTIFACT_DIR=/public/home/acfbwjsi7s/bio_vector_full_run_2026-06-04/outputs/r3_ec4_balanced_stage3skip_2026-06-15
+REACTION_FEATURES_NPZ=/public/home/acfbwjsi7s/bio_vector_full_run_2026-06-04/data/reaction_enzyme_microbe_training_clean_2026-06-01_LOCAL/features/reaction/reaction_features.npz
+python -m pytest tests/test_open_domain_sanity.py -v -s --cache-clear
+```
+
+Pytest result:
+
+```text
+tests/test_open_domain_sanity.py::test_open_domain_row0_reproduces_saved_reaction_embedding
+open_domain_row0_cosine=1.0000000000
+PASSED
+1 passed, 18 warnings in 4.10s
+```
+
+Open-domain sanity result:
+
+```text
+metadata_v3.json row 0 keys: assembly_accession, ec_number, example_id, uniprot_id
+metadata_row0_example_id: TR000001_RHEA10012_P08159
+RxnSMILES source: reaction_features.npz key cano_rxn_smiles, matched by example_id
+metadata_row0_rxn_smiles: CN1CCC[C@@H]1c1ccc(O)nc1.O.O=O>>CNCCCC(=O)c1ccc(O)nc1.OO
+open_domain_row0_cosine: 1.0000000000
+threshold: >= 0.9999
+result: PASS
+```
+
+Deviation / adaptation:
+
+```text
+The teacher prompt requested metadata_v3.json row 0 RxnSMILES, with the field
+name chosen according to the actual schema. The actual metadata rows do not
+store RxnSMILES inline. They store example_id, uniprot_id, ec_number, and
+assembly_accession. The test therefore first checks inline metadata fields and,
+when absent, uses REACTION_FEATURES_NPZ to resolve cano_rxn_smiles by
+metadata row 0 example_id. This preserves the row-0 sanity objective while
+matching the real R3 artifact schema.
+```
+
+Declarations:
+
+```text
+train.py modified: no
+retraining executed: no
+GPU/DCU used: no
+large artifacts uploaded: no
+R4 opened: no
+```
+
+## BioDeg v0.2 Task 2 Large-Artifact Distribution Metadata
+
+HPC artifact audit reviewed locally:
+
+```text
+/home/a/EnzymeCAGE/custom/docs/bio_vector/V0_2_ARTIFACT_DISTRIBUTION_AUDIT_HPC_RESULT_20260618.md
+```
+
+NJU Box links checked locally:
+
+```text
+shared folder: https://box.nju.edu.cn/d/f8cff4232a6f45dfac56/
+embeddings_v3.npz: https://box.nju.edu.cn/f/a4994c6f51614603be50/
+metadata_v3.json: https://box.nju.edu.cn/f/cb833b2ad3a24ec69007/
+password: none
+expires: permanent
+```
+
+NJU Box file identity check:
+
+```text
+embeddings_v3.npz fileName: embeddings_v3.npz
+embeddings_v3.npz fileSize: 596407282 bytes
+metadata_v3.json fileName: metadata_v3.json
+metadata_v3.json fileSize: 22711862 bytes
+```
+
+Large-artifact SHA256 and sizes:
+
+```text
+embeddings_v3.npz size: 596407282 bytes / 568.78 MiB
+embeddings_v3.npz sha256: 07418be8e79b7e9ae1dcb1bfdefd5cdacff87e4bc37e750c5918e6f5f73b8c14
+metadata_v3.json size: 22711862 bytes / 21.66 MiB
+metadata_v3.json sha256: c1b02b21bef6ec759b81cb00fc9544a5e8acd00aea0a234cc15516dc9cd55ff1
+```
+
+Artifact schema:
+
+```text
+embeddings_v3.npz keys: reaction, enzyme, substrate, microbe
+reaction shape/dtype: (145607, 256) float32
+enzyme shape/dtype: (145607, 256) float32
+substrate shape/dtype: (145607, 256) float32
+microbe shape/dtype: (145607, 256) float32
+metadata_v3.json schema: list[dict]
+metadata_v3.json rows: 145607
+metadata_v3.json fields: assembly_accession, ec_number, example_id, uniprot_id
+```
+
+Files updated:
+
+```text
+data/README.md now records NJU Box URLs, SHA256, permanent expiry, npz keys,
+and metadata schema.
+```
+
+## BioDeg v0.2 Task 3 Response YAML
+
+Created:
+
+```text
+V0_2_RESPONSE.yaml
+```
+
+Response YAML location in the GitHub demo repository:
+
+```text
+V0_2_RESPONSE.yaml
+07_r3_retrieval_toolkit_2026-06-17/V0_2_RESPONSE.yaml
+```
+
+The repo-root copy satisfies the teacher wording "repo root". The toolkit-local
+copy is an identical mirror kept beside the examples, tests, and data docs for
+downstream users browsing the toolkit directory.
+
+Filled from audited evidence:
+
+```text
+github_repo_url: https://github.com/bgruiiii/enzyme-cage-bio-vector-demo/tree/v0.2-biodeg-handoff/07_r3_retrieval_toolkit_2026-06-17
+package_import_root: r3_retrieval
+v1_checklist_status: 13/13 RULE PASS
+drfp: drfp==0.3.6, DrfpEncoder.encode([rxn_smiles]) with default encode parameters
+reaction_encoder: 2048 -> 512 -> BN/ReLU -> 512 -> BN/ReLU -> 256, L2-normalize
+substrate_encoder_shared: false
+load_time_sec: 1.894120
+r2e_query_ms: 18.333061
+memory_rss_gb: 1.047417
+open_domain_row0_cosine: 1.0000000000
+```
+
+Validation note:
+
+```text
+YAML contains concrete audited values and no placeholder ellipses. The
+open_domain_sanity query is the teacher-required row-0 sanity query resolved
+from reaction_features.npz by metadata row-0 example_id, because metadata_v3.json
+does not store RxnSMILES inline.
+```
+
+Declarations:
+
+```text
+train.py modified: no
+retraining executed: no
+GPU/DCU used locally: no
+large artifacts committed to GitHub: no
+R4 opened: no
+```
+
+## BioDeg v0.2 Final Local Audit Before Commit
+
+Scope:
+
+```text
+Audit v0.2 handoff files against V0_2_CODEX_PROMPT.md tasks 1-4 before Git
+commit/push.
+```
+
+Teacher task coverage:
+
+```text
+Task 1 open-domain DRFP query: PASS
+Task 2 large-file distribution metadata: PASS
+Task 3 V0_2_RESPONSE.yaml: PASS
+Task 4 GitHub branch/commit/push: not yet executed at this audit point
+```
+
+Local commands:
+
+```text
+python3 -m pytest tests/ -v
+python3 -m compileall -q r3_retrieval examples tests
+python3 examples/00_drfp_open_domain_query.py --help
+python3 examples/01_r2e_basic.py
+python3 examples/02_e2m_candidate_set.py
+python3 examples/03_s2m_candidate_set.py
+python3 examples/04_metadata_lookup.py
+python3 examples/05_unseen_ec4_abstain.py
+python3 examples/06_ec_classification.py
+git diff --check
+find 07_r3_retrieval_toolkit_2026-06-17 -type f -size +10M -print
+find 07_r3_retrieval_toolkit_2026-06-17 -name model_v3.pt -o -name embeddings_v3.npz -o -name metadata_v3.json -o -name '*.pyc'
+```
+
+Local results:
+
+```text
+pytest: 9 passed, 2 skipped
+skipped tests: gated real-R3 artifact checks requiring R3_ARTIFACT_DIR and
+REACTION_FEATURES_NPZ
+compileall: exit code 0
+example entrypoints: examples/00 --help succeeded; examples/01-06 ran and
+reported missing local large artifacts with the documented --output_dir/data
+instruction
+open-domain numpy forward local smoke test: zero DRFP -> (256,) float32,
+finite, L2 norm 1.00000000
+git diff --check: PASS
+large file check: no files over 10M in the toolkit tree
+forbidden artifact check: no model_v3.pt, embeddings_v3.npz, metadata_v3.json,
+or *.pyc in the toolkit tree after cache cleanup
+```
+
+NJU Box link check:
+
+```text
+embeddings_v3.npz URL returned HTTP 200 and page metadata reports fileName
+embeddings_v3.npz and fileSize 596407282.
+metadata_v3.json URL returned HTTP 200 and page metadata reports fileName
+metadata_v3.json and fileSize 22711862.
+shared folder URL returned HTTP 200 and title BioDeg_R3_Handoff.
+```
+
+Response YAML check:
+
+```text
+V0_2_RESPONSE.yaml at repo root parses with PyYAML.
+07_r3_retrieval_toolkit_2026-06-17/V0_2_RESPONSE.yaml parses with PyYAML.
+The two YAML copies are byte-identical.
+Required top-level fields are present.
+Focused placeholder scan on V0_2_RESPONSE.yaml, data/README.md, examples/00,
+and tests/test_open_domain_sanity.py found no placeholders.
+```
+
+Caveats:
+
+```text
+Open-domain real DRFP execution is verified on HPC, not locally, because the
+local Python environment does not have drfp==0.3.6 and the true large R3
+artifacts are intentionally not copied into the GitHub repo.
+metadata_v3.json does not contain RxnSMILES inline; the row-0 sanity test uses
+REACTION_FEATURES_NPZ fallback to resolve cano_rxn_smiles by example_id.
+```
+
+Declarations:
+
+```text
+train.py modified: no
+retraining executed: no
+GPU/DCU used locally: no
+large artifacts committed to GitHub: no
+R4 opened: no
+```

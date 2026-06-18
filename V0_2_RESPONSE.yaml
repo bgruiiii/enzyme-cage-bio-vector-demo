@@ -1,0 +1,123 @@
+# === BioDeg v0.2 R3 backend response ===
+
+github_repo_url: "https://github.com/bgruiiii/enzyme-cage-bio-vector-demo/tree/v0.2-biodeg-handoff/07_r3_retrieval_toolkit_2026-06-17"
+package_import_root: "r3_retrieval"
+v1_checklist_status: "13/13 RULE PASS"
+
+embeddings_v3_npz:
+  size_mb: 568.78
+  size_bytes: 596407282
+  sha256: "07418be8e79b7e9ae1dcb1bfdefd5cdacff87e4bc37e750c5918e6f5f73b8c14"
+  distribution: "nju_box"
+  download_url: "https://box.nju.edu.cn/f/a4994c6f51614603be50/"
+  password: null
+  expires_at: "permanent"
+  npz_keys: ["reaction", "enzyme", "substrate", "microbe"]
+  shapes:
+    reaction: [145607, 256]
+    enzyme: [145607, 256]
+    substrate: [145607, 256]
+    microbe: [145607, 256]
+  dtypes:
+    reaction: "float32"
+    enzyme: "float32"
+    substrate: "float32"
+    microbe: "float32"
+
+metadata_v3_json:
+  size_mb: 21.66
+  size_bytes: 22711862
+  sha256: "c1b02b21bef6ec759b81cb00fc9544a5e8acd00aea0a234cc15516dc9cd55ff1"
+  distribution: "nju_box"
+  download_url: "https://box.nju.edu.cn/f/cb833b2ad3a24ec69007/"
+  password: null
+  expires_at: "permanent"
+  schema: "list[dict]"
+  rows: 145607
+  fields_per_row: ["assembly_accession", "ec_number", "example_id", "uniprot_id"]
+  row0:
+    example_id: "TR000001_RHEA10012_P08159"
+    uniprot_id: "P08159"
+    ec_number: "1.5.3.6"
+    assembly_accession: "GCF_021919345.1"
+  rxn_smiles_note: "metadata_v3.json does not store RxnSMILES inline; v0.2 row-0 sanity resolves cano_rxn_smiles from reaction_features.npz by matching example_id."
+
+drfp_params:
+  library_version: "drfp==0.3.6"
+  training_call: "DrfpEncoder.encode([rxn_smiles])"
+  n_folded_length: 2048
+  min_radius: 0
+  radius: 3
+  rings: true
+  mapping: false
+  atom_index_mapping: false
+  root_central_atom: true
+  include_hydrogens: false
+  show_progress_bar: false
+  non_default_parameters_used_in_training_call: []
+
+reaction_encoder:
+  input_dim: 2048
+  output_dim: 256
+  layers:
+    - "linear-2048-512"
+    - "batchnorm1d-512-eval-eps1e-5"
+    - "relu"
+    - "linear-512-512"
+    - "batchnorm1d-512-eval-eps1e-5"
+    - "relu"
+    - "linear-512-256"
+  post_processing: "L2-normalize"
+  weights_layout:
+    keys_in_npz:
+      - "linear0_weight"
+      - "linear0_bias"
+      - "bn1_weight"
+      - "bn1_bias"
+      - "bn1_running_mean"
+      - "bn1_running_var"
+      - "linear3_weight"
+      - "linear3_bias"
+      - "bn4_weight"
+      - "bn4_bias"
+      - "bn4_running_mean"
+      - "bn4_running_var"
+      - "linear6_weight"
+      - "linear6_bias"
+      - "eps"
+    W_shape_first_layer: [512, 2048]
+    stored_as_pytorch_linear_out_in: true
+    forward_uses_weight_transpose: true
+    requires_transpose: true
+
+substrate_encoder_shared: false
+substrate_encoder_note: "The substrate projector uses the same layer pattern but a separate substrate_projector state_dict branch; v0.2 open-domain handoff exports only the reaction encoder."
+
+api_deviations: []
+schema_deviations:
+  - "metadata_v3.json contains example_id, uniprot_id, ec_number, and assembly_accession; it does not contain organism, organism_taxonomy, annotation, sequence, reaction_smiles, or substrate_smiles fields."
+  - "tests/test_open_domain_sanity.py supports REACTION_FEATURES_NPZ fallback to resolve row-0 cano_rxn_smiles by example_id for the teacher-required open-domain sanity check."
+
+retrieval_performance_actual:
+  load_time_sec: 1.894120
+  r2e_query_ms: 18.333061
+  r2e_query_ms_min_20: 11.936016
+  r2e_query_ms_max_20: 35.714585
+  memory_rss_gb: 1.047417
+  r2e_top1_score_row0: 0.968685
+  r2e_top1_row_index_row0: 0
+
+open_domain_sanity:
+  pollutant_query_smiles: "CN1CCC[C@@H]1c1ccc(O)nc1.O.O=O>>CNCCCC(=O)c1ccc(O)nc1.OO"
+  sanity_query_source: "metadata_v3.json row 0 example_id TR000001_RHEA10012_P08159 resolved to reaction_features.npz cano_rxn_smiles"
+  matched_corpus_row: 0
+  cosine_to_corpus_emb: 1.0000000000
+  threshold: 0.9999
+  pytest_log: "tests/test_open_domain_sanity.py PASSED in 4.10s"
+  drfp_version_observed_on_hpc: "0.3.6"
+
+known_issues:
+  - "e2m top-1 score is about 0.006; consume top_k as a candidate set, not as a reliable top-1 decision."
+  - "s2m top-1 score is about 0.006; consume top_k as a candidate set, not as a reliable top-1 decision."
+  - "metadata_v3.json has a compact schema and omits descriptive organism, taxonomy, annotation, sequence, reaction_smiles, and substrate_smiles fields."
+  - "Large artifacts are distributed through NJU Box and must not be committed to GitHub."
