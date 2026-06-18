@@ -537,6 +537,81 @@ large artifacts committed to GitHub: no
 R4 opened: no
 ```
 
+## V1.5 BioDeg Supplement: Substrate Encoder And Reaction Features
+
+Teacher follow-up source:
+
+```text
+/home/a/EnzymeCAGE/custom/docs/bio_vector/V0_2_FOLLOWUP_TO_STUDENT_2026-06-18.md
+```
+
+HPC evidence reviewed locally:
+
+```text
+/home/a/EnzymeCAGE/custom/docs/bio_vector/V1_5_SUBSTRATE_ENCODER_AND_REACTION_FEATURES_HPC_RESULT_20260618.md
+```
+
+HPC result:
+
+```text
+substrate_encoder_v3.npz exported from frozen substrate_projector.*
+substrate_encoder_v3.npz size_bytes: 5794224
+substrate_encoder_v3.npz sha256: 0ba789a274674de5a1094c99421e86206041aa0bb111bdd912a9beb2e60a56cb
+substrate featurizer: RDKit Morgan fingerprint, radius=2, nBits=2048,
+  useChirality=False, useFeatures=False, useBondTypes=True, useCounts=False
+metadata row0 example_id: TR000001_RHEA10012_P08159
+metadata row0 substrate smiles: CN1CCC[C@@H]1c1ccc(O)nc1.O.O=O
+row-0 substrate numpy-forward cosine: 1.0000000000
+threshold: >= 0.9999
+reaction_features.npz size_bytes: 16691154
+reaction_features.npz sha256: c13d056ca28c3c243ea7884a4f50480779e26058f6d585c60fc057aa1f5ad917
+reaction_features.npz keys: cano_rxn_smiles, drfp, example_id,
+  product_reacting_center_indices, rhea_id, substrate_reacting_center_indices,
+  uniprot_id
+```
+
+NJU Box links checked locally:
+
+```text
+folder: https://box.nju.edu.cn/d/825d7f0611fb44afa451/
+substrate_encoder_v3.npz: https://box.nju.edu.cn/f/e041cdc720b24299bfd0/
+reaction_features.npz: https://box.nju.edu.cn/f/bb21eceb19e947dca534/
+```
+
+Local V1.5 files integrated:
+
+```text
+data/substrate_encoder_v3.npz
+examples/01_substrate_open_domain_query.py
+data/README.md
+data/MODEL_ARCHITECTURE.md
+README.md
+V0_2_RESPONSE.yaml
+```
+
+V1.5 local checks at integration time:
+
+```text
+python3 -m py_compile examples/01_substrate_open_domain_query.py: PASS
+python3 examples/01_substrate_open_domain_query.py --help: PASS
+PyYAML parse for both V0_2_RESPONSE.yaml copies: PASS
+root and toolkit V0_2_RESPONSE.yaml byte-identical: PASS
+substrate_encoder_v3.npz local sha256 matches HPC: PASS
+forbidden local large artifacts reaction_features.npz, embeddings_v3.npz,
+metadata_v3.json, model_v3.pt: absent
+```
+
+V1.5 declarations:
+
+```text
+train.py modified: no
+retraining executed: no
+GPU/DCU used locally: no
+large artifacts committed to GitHub: no
+R4 opened: no
+GitHub commit/push executed at Batch D: no
+```
+
 ## BioDeg v0.2 Final Local Audit Before Commit
 
 Scope:

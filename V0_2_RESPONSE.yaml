@@ -121,3 +121,106 @@ known_issues:
   - "s2m top-1 score is about 0.006; consume top_k as a candidate set, not as a reliable top-1 decision."
   - "metadata_v3.json has a compact schema and omits descriptive organism, taxonomy, annotation, sequence, reaction_smiles, and substrate_smiles fields."
   - "Large artifacts are distributed through NJU Box and must not be committed to GitHub."
+
+v1_5_substrate_encoder:
+  path: "07_r3_retrieval_toolkit_2026-06-17/data/substrate_encoder_v3.npz"
+  size_bytes: 5794224
+  sha256: "0ba789a274674de5a1094c99421e86206041aa0bb111bdd912a9beb2e60a56cb"
+  nju_box_url: "https://box.nju.edu.cn/f/e041cdc720b24299bfd0/"
+  nju_box_folder_url: "https://box.nju.edu.cn/d/825d7f0611fb44afa451/"
+  substrate_input_dim: 2048
+  output_dim: 256
+  source_checkpoint_sha256: "f728455ecc9d12c1eb3fc084fdc5445933befa5b7eb56a3644965fb4e0519c4c"
+  source_state_dict_branch: "substrate_projector.*"
+  layers:
+    - "linear-2048-512"
+    - "batchnorm1d-512-eval-eps1e-5"
+    - "relu"
+    - "linear-512-512"
+    - "batchnorm1d-512-eval-eps1e-5"
+    - "relu"
+    - "linear-512-256"
+  post_processing: "L2-normalize"
+  weights_layout:
+    keys_in_npz:
+      - "linear0_weight"
+      - "linear0_bias"
+      - "bn1_weight"
+      - "bn1_bias"
+      - "bn1_running_mean"
+      - "bn1_running_var"
+      - "linear3_weight"
+      - "linear3_bias"
+      - "bn4_weight"
+      - "bn4_bias"
+      - "bn4_running_mean"
+      - "bn4_running_var"
+      - "linear6_weight"
+      - "linear6_bias"
+      - "eps"
+      - "substrate_input_dim"
+      - "featurizer_name"
+      - "featurizer_radius"
+      - "featurizer_n_bits"
+      - "featurizer_use_chirality"
+      - "featurizer_use_features"
+    W_shape_first_layer: [512, 2048]
+    stored_as_pytorch_linear_out_in: true
+    forward_uses_weight_transpose: true
+    requires_transpose: true
+  substrate_input_featurizer:
+    name: "morgan_fp"
+    rdkit_version_observed_on_hpc: "2022.09.5"
+    api: "rdkit.Chem.AllChem.GetMorganFingerprintAsBitVect"
+    radius: 2
+    n_bits: 2048
+    use_chirality: false
+    use_features: false
+    use_bond_types: true
+    use_counts: false
+    bit_info: null
+    output_dtype: "float32"
+  open_domain_sanity:
+    metadata_row0_example_id: "TR000001_RHEA10012_P08159"
+    metadata_row0_substrate_smiles: "CN1CCC[C@@H]1c1ccc(O)nc1.O.O=O"
+    substrate_smiles_source: "reaction_features.npz cano_rxn_smiles left side, matched by example_id"
+    matched_corpus_row: 0
+    cosine_to_corpus_emb: 1.0000000000
+    threshold: 0.9999
+    passed: true
+
+v1_5_reaction_features_npz:
+  size_bytes: 16691154
+  size_mib: 15.92
+  sha256: "c13d056ca28c3c243ea7884a4f50480779e26058f6d585c60fc057aa1f5ad917"
+  nju_box_url: "https://box.nju.edu.cn/f/bb21eceb19e947dca534/"
+  nju_box_folder_url: "https://box.nju.edu.cn/d/825d7f0611fb44afa451/"
+  hpc_path: "/public/home/acfbwjsi7s/bio_vector_full_run_2026-06-04/data/reaction_enzyme_microbe_training_clean_2026-06-01_LOCAL/features/reaction/reaction_features.npz"
+  keys:
+    - "cano_rxn_smiles"
+    - "drfp"
+    - "example_id"
+    - "product_reacting_center_indices"
+    - "rhea_id"
+    - "substrate_reacting_center_indices"
+    - "uniprot_id"
+  dtypes:
+    cano_rxn_smiles: "object"
+    drfp: "float32"
+    example_id: "object"
+    product_reacting_center_indices: "object"
+    rhea_id: "int64"
+    substrate_reacting_center_indices: "object"
+    uniprot_id: "object"
+  shapes:
+    cano_rxn_smiles: [145607]
+    drfp: [145607, 2048]
+    example_id: [145607]
+    product_reacting_center_indices: [145607]
+    rhea_id: [145607]
+    substrate_reacting_center_indices: [145607]
+    uniprot_id: [145607]
+  row0:
+    example_id: "TR000001_RHEA10012_P08159"
+    cano_rxn_smiles: "CN1CCC[C@@H]1c1ccc(O)nc1.O.O=O>>CNCCCC(=O)c1ccc(O)nc1.OO"
+  dtypes_documented: true

@@ -139,9 +139,26 @@ See [`data/MODEL_ARCHITECTURE.md`](data/MODEL_ARCHITECTURE.md). The small
 `data/r3_reaction_encoder.npz` file was exported from the frozen R3 checkpoint
 and passed the row-0 `cosine >= 0.9999` sanity check with cosine `1.00000000`.
 
+## Open-Domain Substrate Query
+
+V1.5 adds the frozen substrate projector export and training-compatible RDKit
+Morgan featurizer reference path:
+
+```text
+substrate SMILES -> Morgan FP radius=2 nBits=2048 -> substrate_encoder_v3.npz
+                 -> L2-normalized substrate_emb -> s2m_retrieval(...)
+```
+
+The small `data/substrate_encoder_v3.npz` file passed the row-0
+`cosine >= 0.9999` sanity check with cosine `1.0000000000`. The larger
+`reaction_features.npz` file used for `example_id -> cano_rxn_smiles` lookup is
+distributed through NJU Box and is documented in [`data/README.md`](data/README.md).
+
 ## Examples
 
 ```bash
+python examples/00_drfp_open_domain_query.py --rxn_smiles 'RXN>>SMILES'
+python examples/01_substrate_open_domain_query.py --smiles 'CCO'
 python examples/01_r2e_basic.py --output_dir /path/to/r3/output
 python examples/02_e2m_candidate_set.py --output_dir /path/to/r3/output
 python examples/03_s2m_candidate_set.py --output_dir /path/to/r3/output

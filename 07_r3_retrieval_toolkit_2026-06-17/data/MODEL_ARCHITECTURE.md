@@ -112,5 +112,26 @@ state_dict keys, BatchNorm eval statistics, epsilon, and layer order.
 
 The substrate projector uses the same layer pattern as the reaction projector
 with input shape `[2048]` and output shape `[256]`, but it is a separate
-state_dict branch (`substrate_projector.*`). This delivery only requires the
-reaction encoder export for open-domain R2E query support.
+state_dict branch (`substrate_projector.*`).
+
+V1.5 exports this branch as:
+
+```text
+substrate_encoder_v3.npz
+sha256: 0ba789a274674de5a1094c99421e86206041aa0bb111bdd912a9beb2e60a56cb
+```
+
+The substrate input is the training RDKit Morgan fingerprint:
+
+```text
+API: rdkit.Chem.AllChem.GetMorganFingerprintAsBitVect
+radius: 2
+nBits: 2048
+useChirality: False
+useFeatures: False
+useBondTypes: True
+```
+
+The V1.5 row-0 sanity check compares the numpy-forward substrate embedding
+against `embeddings_v3.npz["substrate"][0]` and passes with cosine
+`1.0000000000`.

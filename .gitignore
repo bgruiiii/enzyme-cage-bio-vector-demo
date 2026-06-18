@@ -12,6 +12,8 @@ venv/
 *.pth
 *.npz
 !07_r3_retrieval_toolkit_2026-06-17/data/r3_reaction_encoder.npz
+!07_r3_retrieval_toolkit_2026-06-17/data/substrate_encoder_v3.npz
+metadata_v3.json
 *.npy
 *.tar.gz
 *.zip

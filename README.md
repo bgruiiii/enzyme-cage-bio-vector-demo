@@ -28,6 +28,8 @@ Key result files:
 - Final package audit: [`06_r3_agent_ready_package_20260616/R3_AGENT_READY_PACKAGE_V2_LEAKFIX_AUDIT_20260617.md`](06_r3_agent_ready_package_20260616/R3_AGENT_READY_PACKAGE_V2_LEAKFIX_AUDIT_20260617.md)
 - Final HPC evidence: [`06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_v2_FINAL_HPC_EVIDENCE_20260617.md`](06_r3_agent_ready_package_20260616/R3_LEAVE_EC4_OUT_v2_FINAL_HPC_EVIDENCE_20260617.md)
 - R3 retrieval toolkit: [`07_r3_retrieval_toolkit_2026-06-17/`](07_r3_retrieval_toolkit_2026-06-17/)
+- BioDeg v0.2 response YAML: [`V0_2_RESPONSE.yaml`](V0_2_RESPONSE.yaml)
+- BioDeg v0.2 V1.5 substrate assets: [`07_r3_retrieval_toolkit_2026-06-17/data/README.md`](07_r3_retrieval_toolkit_2026-06-17/data/README.md)
 - Submission manifest: [`00_manifest/R3_TEACHER_SUBMISSION_MANIFEST_20260615.md`](00_manifest/R3_TEACHER_SUBMISSION_MANIFEST_20260615.md)
 
 ## Final R3 Agent-Ready Package
@@ -85,7 +87,8 @@ tolerance.
   Final R3 acceptance, Leave-EC-Out, model-freeze, and agent-readiness package.
 
 07_r3_retrieval_toolkit_2026-06-17/
-  Pure numpy local retrieval toolkit for frozen R3 embeddings.
+  Pure numpy local retrieval toolkit for frozen R3 embeddings, including
+  v0.2/V1.5 open-domain reaction and substrate encoder exports.
 
 scripts/
   Evaluation scripts archived with the submission.
